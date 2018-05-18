@@ -55,7 +55,7 @@ pp_hole_offset_min_ipp = housing_front_distance + ipp_enable*(pp_length+pp_wall_
 pp_hole_offset = max(pp_hole_offset_min_vd, pp_hole_offset_min_ipp);
 
 housing_length = housing_length_base + pp_hole_offset;
-
+                
 if(part == 0 || part == 2)
 {
     difference()
@@ -170,6 +170,15 @@ if(part == 1 || part == 2)
                         {
                             translate([-pp_case_width/2, -0.1, -housing_height+housing_wall])
                                 cube([pp_case_width, pp_case_width+0.2, pp_case_height]);
+                        }
+                        // akaFunk logo
+                        translate([0, housing_length/2, -housing_height+housing_wall-0.5])
+                        rotate(a=[0,0,0])
+                        {
+                            linear_extrude(height = 0.6)
+                            {
+                                text(text = str("akaFunk"), font = "Sans", size = 7, valign = "center", halign = "center");
+                            }
                         }
                     }
                     // Input connector

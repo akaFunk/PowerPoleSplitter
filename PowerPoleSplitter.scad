@@ -40,8 +40,8 @@ pp_border = 0.5;
 pp_slot_depth = 0.5;
 pp_slot_width = 4.0;
 pp_slot_offset = 2.1;
-pp_drill_diameter_top = 2.0;
-pp_drill_offset = 4.0;
+pp_drill_diameter_top = 2.5;
+pp_drill_offset = 15.0;
 pp_topcut_depth = 0.5;
 pp_topcut_height = 2.0;
 
@@ -96,6 +96,7 @@ if(part == 0 || part == 2)
             translate([housing_width/2-housing_corner_radius, housing_corner_radius, -housing_wall])
                 cylinder(r=housing_corner_radius, h=housing_wall, center=false, $fn=36);
             
+            // Voltage display
             if(vd_enable)
             {
                 difference()
@@ -115,19 +116,23 @@ if(part == 0 || part == 2)
             }
             translate([0, pp_hole_offset, 0])
             {
-            for(pp = [0 : 1 : pp_count-1])
-                translate([0, pp*pp_distance+pp_case_height/2, 0])
-                    SinglePowerPoleHolder();
-            for(pp = [0 : 1 : pp_count-2])
-                difference()
+                // Power pole holders at the top
+                for(pp = [0 : 1 : pp_count-1])
+                    translate([0, pp*pp_distance+pp_case_height/2, 0])
+                        SinglePowerPoleHolder();
+                // Walls between the holders
+                for(pp = [0 : 1 : pp_count-2])
                 {
-                    translate([-pp_case_width/2, pp*pp_distance+pp_case_height, -pp_length-pp_wall_thickness])
+                    difference()
                     {
-                        cube([pp_case_width, pp_distance-pp_case_height, pp_length+pp_wall_thickness]);
+                        translate([-pp_case_width/2, pp*pp_distance+pp_case_height, -pp_length-pp_wall_thickness])
+                        {
+                            cube([pp_case_width, pp_distance-pp_case_height, pp_length+pp_wall_thickness]);
+                        }
+                        translate([0, pp*pp_distance+pp_case_height, -pp_length+pp_drill_offset])
+                            rotate(a=[90,0,0])
+                                cylinder(r=pp_drill_diameter_top/2, h=pp_height+2*pp_wall_thickness+0.2, center=true, $fn=36);
                     }
-                    translate([0, pp*pp_distance+pp_case_height, -pp_drill_offset])
-                        rotate(a=[90,0,0])
-                            cylinder(r=pp_drill_diameter_top/2, h=pp_height+2*pp_wall_thickness+0.2, center=true, $fn=36);
                 }
             }
         }
@@ -252,7 +257,7 @@ module SinglePowerPoleHolder()
         translate([-pp_slot_offset-pp_slot_width, -pp_height/2-pp_slot_depth, -pp_length])
             cube([pp_slot_width,pp_slot_depth+0.1,pp_length+0.1]);
         // Drill
-        translate([0, 0, -pp_length+pp_length-pp_drill_offset])
+        translate([0, 0, -pp_length+pp_drill_offset])
             rotate(a=[90,0,0])
                 cylinder(r=pp_drill_diameter_top/2, h=pp_height+2*pp_wall_thickness+0.2, center=true, $fn=36);
         // Top cutout

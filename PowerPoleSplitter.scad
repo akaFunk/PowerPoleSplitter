@@ -1,7 +1,7 @@
 // Select which part to generate
 part = 1;    // 0 = Top, 1 = Bottom, 2 = top + bottom, 3 = single power pole slot
 
-// Ingraved name
+// Engraved name
 name_enable = 1;
 name = "Max";
 
@@ -19,7 +19,6 @@ vd_hole_dist = 26.0;
 ipp_enable = 1;
 
 // Drill for the two case parts
-drill_dist = 5.0;    // distance of the hole from the border
 drill_diameter_top = 3.2;
 drill_diameter_bottom = 3.8;
 drill_depth_bottom = 20.0;
@@ -31,7 +30,9 @@ housing_height = 35.0;
 housing_wall = 2.0;
 housing_back_distance = 10.0;
 housing_front_distance = 10.0;
-housing_corner_radius = 5.0;
+housing_corner_radius = 2.0;
+housing_top_radius = 1.5;    // Radius for the the top rounded edges
+housing_bottom_radius = 1.5;    // Radius for the bottom rounded edges
 
 // Settings for the power pole holder
 pp_count = 6;
@@ -59,7 +60,9 @@ pp_hole_offset_min_ipp = housing_front_distance + ipp_enable*(pp_length+pp_wall_
 pp_hole_offset = max(pp_hole_offset_min_vd, pp_hole_offset_min_ipp);
 
 housing_length = housing_length_base + pp_hole_offset;
-                
+
+$fn=50;
+
 if(part == 0 || part == 2)
 {
     difference()
@@ -68,9 +71,25 @@ if(part == 0 || part == 2)
         {
             difference()
             {
-                // Housing top plate
-                translate([-housing_width/2, 0, -housing_wall])
-                    cube([housing_width, housing_length, housing_wall]);
+                // Main top plate
+                minkowski()
+                {
+                    minkowski()
+                    {
+                        cylinder(r=housing_corner_radius-housing_top_radius,h=housing_wall-housing_top_radius);
+                        translate([0,0,-housing_wall])
+                        {
+                            difference()
+                            {
+                                translate([0, 0, housing_top_radius])  sphere(r=housing_top_radius);
+                                cylinder(r=housing_top_radius, h=housing_top_radius);
+                            }
+                        }
+                    }
+                    translate([0, housing_length/2, -housing_top_radius])
+                        cube([housing_width-2*housing_corner_radius, housing_length-2*housing_corner_radius, 1e-20], center=true);
+                }
+                
                 // Cut for the power poles
                 translate([-pp_case_width/2, pp_hole_offset, -housing_wall-0.1])
                     cube([pp_case_width, (pp_count-1)*pp_distance+pp_case_height, housing_wall+0.2]);
@@ -80,25 +99,7 @@ if(part == 0 || part == 2)
                     translate([-vd_width/2, housing_front_distance, -housing_wall-0.1])
                         cube([vd_width, vd_length, housing_wall+0.2]);
                 }
-                // Substract round corners
-                translate([-housing_width/2, 0, -housing_wall-0.1])
-                    cylinder(r=housing_corner_radius, h=housing_wall+0.2, center=false, $fn=36);
-                translate([housing_width/2, housing_length, -housing_wall-0.1])
-                    cylinder(r=housing_corner_radius, h=housing_wall+0.2, center=false, $fn=36);
-                translate([-housing_width/2, housing_length, -housing_wall-0.1])
-                    cylinder(r=housing_corner_radius, h=housing_wall+0.2, center=false, $fn=36);
-                translate([housing_width/2, 0, -housing_wall-0.1])
-                    cylinder(r=housing_corner_radius, h=housing_wall+0.2, center=false, $fn=36);
             }
-            // Add rounded corners
-            translate([-housing_width/2+housing_corner_radius, housing_corner_radius, -housing_wall])
-                cylinder(r=housing_corner_radius, h=housing_wall, center=false, $fn=36);
-            translate([housing_width/2-housing_corner_radius, housing_length-housing_corner_radius, -housing_wall])
-                cylinder(r=housing_corner_radius, h=housing_wall, center=false, $fn=36);
-            translate([-housing_width/2+housing_corner_radius, housing_length-housing_corner_radius, -housing_wall])
-                cylinder(r=housing_corner_radius, h=housing_wall, center=false, $fn=36);
-            translate([housing_width/2-housing_corner_radius, housing_corner_radius, -housing_wall])
-                cylinder(r=housing_corner_radius, h=housing_wall, center=false, $fn=36);
             
             // Voltage display
             if(vd_enable)
@@ -141,13 +142,13 @@ if(part == 0 || part == 2)
             }
         }
         // Drills
-        translate([-housing_width/2+drill_dist, housing_corner_radius, -housing_wall-0.1])
+        translate([-housing_width/2+drill_block_width/2, drill_block_width/2, -housing_wall-0.1])
             cylinder(r=drill_diameter_top/2, h=housing_wall+0.2, center=false, $fn=36);
-        translate([housing_width/2-drill_dist, housing_length-housing_corner_radius, -housing_wall-0.1])
+        translate([housing_width/2-drill_block_width/2, housing_length-drill_block_width/2, -housing_wall-0.1])
             cylinder(r=drill_diameter_top/2, h=housing_wall+0.2, center=false, $fn=36);
-        translate([-housing_width/2+drill_dist, housing_length-housing_corner_radius, -housing_wall-0.1])
+        translate([-housing_width/2+drill_block_width/2, housing_length-drill_block_width/2, -housing_wall-0.1])
             cylinder(r=drill_diameter_top/2, h=housing_wall+0.2, center=false, $fn=36);
-        translate([housing_width/2-drill_dist, housing_corner_radius, -housing_wall-0.1])
+        translate([housing_width/2-drill_block_width/2, drill_block_width/2, -housing_wall-0.1])
             cylinder(r=drill_diameter_top/2, h=housing_wall+0.2, center=false, $fn=36);
     }
 }
@@ -165,10 +166,29 @@ if(part == 1 || part == 2)
                     difference()
                     {
                         // Main body
-                        translate([-housing_width/2, 0, -housing_height])
-                            cube([housing_width, housing_length, housing_height-housing_wall]);
-                        translate([-housing_width/2+housing_wall, housing_wall, -housing_height+housing_wall])
-                            cube([housing_width-2*housing_wall, housing_length-2*housing_wall, housing_height-2*housing_wall+0.1]);
+                        translate([-housing_width/2+housing_corner_radius, housing_corner_radius, housing_bottom_radius-housing_height])
+                        minkowski()
+                        {
+                            minkowski()
+                            {
+                                cylinder(r=housing_corner_radius-housing_bottom_radius,h=housing_wall);
+                                {
+                                    difference()
+                                    {
+                                        sphere(r=housing_bottom_radius);
+                                        cylinder(r=housing_bottom_radius, h=housing_bottom_radius);
+                                    }
+                                }
+                            }
+                                cube([housing_width-2*housing_corner_radius, housing_length-2*housing_corner_radius, housing_height-2*housing_wall-housing_bottom_radius], center=false);
+                        }
+                        
+                        // Two cubes in order to remove the inner part of the main body
+                        translate([-housing_width/2+drill_block_width, housing_wall, -housing_height+housing_wall])
+                            cube([housing_width-2*drill_block_width, housing_length-2*housing_wall, housing_height-2*housing_wall+0.1], center=false);
+                        translate([-housing_width/2+housing_wall, drill_block_width, -housing_height+housing_wall])
+                            cube([housing_width-2*housing_wall, housing_length-2*drill_block_width, housing_height-2*housing_wall+0.1], center=false);
+                        
                         // Hole for the input connector
                         if(ipp_enable)
                         {
@@ -185,12 +205,15 @@ if(part == 1 || part == 2)
                                 }
                             }
                         // Name ingravement
-                        translate([0, housing_length/2, -housing_height+0.5])
-                            rotate(a=[180, 0, 90])
-                            linear_extrude(height = 0.6)
-                            {
-                                text(text = str(name), font = "Sans", size = 6, valign = "center", halign = "center");
-                            }
+                        if(name_enable == 1)
+                        {
+                            translate([0, housing_length/2, -housing_height+0.5])
+                                rotate(a=[180, 0, 90])
+                                    linear_extrude(height = 0.6)
+                                    {
+                                        text(text = str(name), font = "Sans", size = 6, valign = "center", halign = "center");
+                                    }
+                        }
                     }
                     // Input connector
                     if(ipp_enable)
@@ -199,52 +222,18 @@ if(part == 1 || part == 2)
                         rotate([90, 0, 0])
                             SinglePowerPoleHolder();
                     }
-                    
-                    // The four corners for the threadings
-                    translate([-housing_width/2+housing_wall, housing_wall, -housing_height+housing_wall])
-                        cube([drill_block_width-housing_wall, drill_block_width-housing_wall, housing_height-2*housing_wall]);
-                    translate([housing_width/2-drill_block_width, housing_wall, -housing_height+housing_wall])
-                        cube([drill_block_width-housing_wall, drill_block_width-housing_wall, housing_height-2*housing_wall]);
-                    translate([-housing_width/2+housing_wall, housing_length-drill_block_width, -housing_height+housing_wall])
-                        cube([drill_block_width-housing_wall, drill_block_width-housing_wall, housing_height-2*housing_wall]);
-                    translate([housing_width/2-drill_block_width, housing_length-drill_block_width, -housing_height+housing_wall])
-                        cube([drill_block_width-housing_wall, drill_block_width-housing_wall, housing_height-2*housing_wall]);
-                }
-                difference()
-                {
-                    union()
-                    {
-                        // Squares for the corners
-                        translate([-housing_width/2-0.1, -0.1, -housing_height-0.1])
-                            cube([housing_corner_radius+0.1, housing_corner_radius+0.1, housing_height+0.2]);
-                        translate([housing_width/2-housing_corner_radius, -0.1, -housing_height-0.1])
-                            cube([housing_corner_radius+0.1, housing_corner_radius+0.1, housing_height+0.2]);
-                        translate([-housing_width/2-0.1, housing_length-housing_corner_radius, -housing_height-0.1])
-                            cube([housing_corner_radius+0.1, housing_corner_radius+0.1, housing_height+0.2]);
-                        translate([housing_width/2-housing_corner_radius, housing_length-housing_corner_radius, -housing_height-0.1])
-                            cube([housing_corner_radius+0.1, housing_corner_radius+0.1, housing_height+0.2]);
-                    }
-                    // Substract round corners
-                    translate([-housing_width/2+housing_corner_radius, housing_corner_radius, -housing_height-0.2])
-                        cylinder(r=housing_corner_radius, h=housing_height+0.4, center=false, $fn=36);
-                    translate([housing_width/2-housing_corner_radius, housing_corner_radius, -housing_height-0.2])
-                        cylinder(r=housing_corner_radius, h=housing_height+0.4, center=false, $fn=36);
-                    translate([-housing_width/2+housing_corner_radius, housing_length-housing_corner_radius, -housing_height-0.2])
-                        cylinder(r=housing_corner_radius, h=housing_height+0.4, center=false, $fn=36);
-                    translate([housing_width/2-housing_corner_radius, housing_length-housing_corner_radius, -housing_height-0.2])
-                        cylinder(r=housing_corner_radius, h=housing_height+0.4, center=false, $fn=36);
                 }
             }
             
         }
         // Drills
-        translate([-housing_width/2+drill_dist, housing_corner_radius, -drill_depth_bottom-housing_wall])
+        translate([-housing_width/2+drill_block_width/2, drill_block_width/2, -drill_depth_bottom-housing_wall])
             cylinder(r=drill_diameter_bottom/2, h=drill_depth_bottom+0.2, center=false, $fn=36);
-        translate([housing_width/2-drill_dist, housing_length-housing_corner_radius, -drill_depth_bottom-housing_wall])
+        translate([housing_width/2-drill_block_width/2, housing_length-drill_block_width/2, -drill_depth_bottom-housing_wall])
             cylinder(r=drill_diameter_bottom/2, h=drill_depth_bottom+0.2, center=false, $fn=36);
-        translate([-housing_width/2+drill_dist, housing_length-housing_corner_radius, -drill_depth_bottom-housing_wall])
+        translate([-housing_width/2+drill_block_width/2, housing_length-drill_block_width/2, -drill_depth_bottom-housing_wall])
             cylinder(r=drill_diameter_bottom/2, h=drill_depth_bottom+0.2, center=false, $fn=36);
-        translate([housing_width/2-drill_dist, housing_corner_radius, -drill_depth_bottom-housing_wall])
+        translate([housing_width/2-drill_block_width/2, drill_block_width/2, -drill_depth_bottom-housing_wall])
             cylinder(r=drill_diameter_bottom/2, h=drill_depth_bottom+0.2, center=false, $fn=36);
     }
 }

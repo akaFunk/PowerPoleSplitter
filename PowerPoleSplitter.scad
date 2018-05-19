@@ -1,5 +1,9 @@
 // Select which part to generate
-part = 0;    // 0 = Top, 1 = Bottom, 2 = top + bottom, 3 = single power pole slot
+part = 1;    // 0 = Top, 1 = Bottom, 2 = top + bottom, 3 = single power pole slot
+
+// Ingraved name
+name_enable = 1;
+name = "Max";
 
 // Voltage display
 vd_enable = 1;
@@ -173,13 +177,20 @@ if(part == 1 || part == 2)
                         }
                         // akaFunk logo
                         translate([0, housing_length/2, -housing_height+housing_wall-0.5])
-                        rotate(a=[0,0,0])
-                        {
+                            rotate(a=[0,0,0])
+                            {
+                                linear_extrude(height = 0.6)
+                                {
+                                    text(text = str("akaFunk"), font = "Sans", size = 7, valign = "center", halign = "center");
+                                }
+                            }
+                        // Name ingravement
+                        translate([0, housing_length/2, -housing_height+0.5])
+                            rotate(a=[180, 0, 90])
                             linear_extrude(height = 0.6)
                             {
-                                text(text = str("akaFunk"), font = "Sans", size = 7, valign = "center", halign = "center");
+                                text(text = str(name), font = "Sans", size = 6, valign = "center", halign = "center");
                             }
-                        }
                     }
                     // Input connector
                     if(ipp_enable)

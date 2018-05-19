@@ -7,6 +7,7 @@ The holes in the bottom part are made for M3 metal threaded inserts which can be
 
 ## Images
 ![PowerPoleSplitter Preview](https://raw.githubusercontent.com/akaFunk/PowerPoleSplitter/master/images/PowerPoleSplitter_1.png)
+![PowerPoleSplitter Printed](https://raw.githubusercontent.com/akaFunk/PowerPoleSplitter/master/images/img_0001.jpg)
 
 ## References
 [1] http://www.andersonpower.com/us/en/products/powerpole/index.aspx  

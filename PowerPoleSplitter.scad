@@ -220,7 +220,7 @@ if(part == 1 || part == 2)
                     {
                     translate([0, 0, pp_case_height/2-housing_height+housing_wall])
                         rotate([90, 0, 0])
-                            SinglePowerPoleHolder();
+                            SinglePowerPoleHolder(1);
                     }
                 }
             }
@@ -240,37 +240,44 @@ if(part == 1 || part == 2)
 
 if(part == 3)
 {
-    SinglePowerPoleHolder();
+    SinglePowerPoleHolder(1);
 }
 
-module SinglePowerPoleHolder()
+module SinglePowerPoleHolder(block_hole)
 {
-    difference()
+    union()
     {
-        // Main body of the power pole case
-        translate([-pp_case_width/2, -pp_case_height/2, -pp_length-pp_wall_thickness])
-            cube([pp_case_width,pp_case_height,pp_length+pp_wall_thickness]);
-        // Most of the power pole connector itself
-        translate([-pp_width/2, -pp_height/2, -pp_length])
-            cube([pp_width,pp_height,pp_length+0.1]);
-        // Add a hole to the bottom including the pp_border so the connector will lock in place
-        translate([-pp_width/2+pp_border, -pp_height/2+pp_border, -pp_length-pp_wall_thickness-0.1])
-            cube([pp_width-2*pp_border,pp_height-2*pp_border,pp_wall_thickness+0.2]);
-        // Side slot
-        translate([-pp_width/2-pp_slot_depth, -pp_slot_width/2, -pp_length])
-            cube([pp_slot_depth+0.1,pp_slot_width,pp_length+0.1]);
-        // Left slot
-        translate([pp_slot_offset, -pp_height/2-pp_slot_depth, -pp_length])
-            cube([pp_slot_width,pp_slot_depth+0.1,pp_length+0.1]);
-        // Right slot
-        translate([-pp_slot_offset-pp_slot_width, -pp_height/2-pp_slot_depth, -pp_length])
-            cube([pp_slot_width,pp_slot_depth+0.1,pp_length+0.1]);
-        // Drill
-        translate([0, 0, -pp_length+pp_drill_offset])
-            rotate(a=[90,0,0])
-                cylinder(r=pp_drill_diameter_top/2, h=pp_height+2*pp_wall_thickness+0.2, center=true, $fn=36);
-        // Top cutout
-        translate([-pp_width/2-pp_topcut_depth, -pp_height/2-pp_topcut_depth, -pp_length+pp_length-pp_topcut_height+0.1])
-            cube([pp_width+2*pp_topcut_depth, pp_height+2*pp_topcut_depth, pp_topcut_height+0.1]);
+        difference()
+        {
+            // Main body of the power pole case
+            translate([-pp_case_width/2, -pp_case_height/2, -pp_length-pp_wall_thickness])
+                cube([pp_case_width,pp_case_height,pp_length+pp_wall_thickness]);
+            // Most of the power pole connector itself
+            translate([-pp_width/2, -pp_height/2, -pp_length])
+                cube([pp_width,pp_height,pp_length+0.1]);
+            // Add a hole to the bottom including the pp_border so the connector will lock in place
+            translate([-pp_width/2+pp_border, -pp_height/2+pp_border, -pp_length-pp_wall_thickness-0.1])
+                cube([pp_width-2*pp_border,pp_height-2*pp_border,pp_wall_thickness+0.2]);
+            // Side slot
+            translate([-pp_width/2-pp_slot_depth, -pp_slot_width/2, -pp_length])
+                cube([pp_slot_depth+0.1,pp_slot_width,pp_length+0.1]);
+            // Left slot
+            translate([pp_slot_offset, -pp_height/2-pp_slot_depth, -pp_length])
+                cube([pp_slot_width,pp_slot_depth+0.1,pp_length+0.1]);
+            // Right slot
+            translate([-pp_slot_offset-pp_slot_width, -pp_height/2-pp_slot_depth, -pp_length])
+                cube([pp_slot_width,pp_slot_depth+0.1,pp_length+0.1]);
+            // Drill
+            translate([0, 0, -pp_length+pp_drill_offset])
+                rotate(a=[90,0,0])
+                    cylinder(r=pp_drill_diameter_top/2, h=pp_height+2*pp_wall_thickness+0.2, center=true, $fn=36);
+            // Top cutout
+            translate([-pp_width/2-pp_topcut_depth, -pp_height/2-pp_topcut_depth, -pp_length+pp_length-pp_topcut_height+0.1])
+                cube([pp_width+2*pp_topcut_depth, pp_height+2*pp_topcut_depth, pp_topcut_height+0.1]);
+        }
+        if(block_hole == 1)
+        {
+            translate([-1.5, pp_case_height/2-pp_wall_thickness, -pp_length+pp_drill_offset-1.5]) cube([3, 0.2, 3]);
+        }
     }
 }
